@@ -147,6 +147,13 @@ The allocated memory for the command and arguments is freed before looping back.
 
 The loop continues indefinitely, allowing the user to enter more commands.
 
+## Compilation
+
+Shell will be compiled this way:
+    
+    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
+
+
 ## Index
 
 | Files                                | Description and contents                                                                                                                                                               |
