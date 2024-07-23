@@ -7,8 +7,5 @@
 #include <sys/wait.h>
 #include <string.h>
 
-char token_from_input(char in);
-char token_from_path(char path);
-char get_path(char command);
 
 #endif
