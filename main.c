@@ -5,6 +5,7 @@ int main()
 	char in[100] = {'\0'}; /*input string storage*/
 	char *drifter; /*temporary storage of the individual tokens before assigning them to the array*/
 	char *toks[100]; /*array of tokens converted from the input provided*/
+	char dir[PATH_MAX];
 	int end; /*used to store the result of strcmp for checking if the exit command is entered*/
 	size_t i; /*iterative variable used for processing strtok*/
 
@@ -12,6 +13,10 @@ int main()
 
 	while(end != 0 ) /*loop keeps shell running until the exit command is entered*/
 	{
+		if(getcwd(dir, sizeof(dir)) != NULL)
+		{
+			printf("%s", dir);
+		}
 		printf("$: ");
 		fgets(in, sizeof(in), stdin); /*reads the input from the terminal*/
 		in[strcspn(in, "\n")] = 0; /*removes the newline at the end of the input string*/
@@ -23,6 +28,7 @@ int main()
 			toks[i++] = drifter;
 			drifter = strtok(NULL, " ");
 		}
+		// check_path(toks);
 	}
 	return(0);
 }

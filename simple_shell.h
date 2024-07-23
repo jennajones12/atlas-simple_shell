@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <limits.h>
 
+char *check_path(char **toks);
 
 #endif
