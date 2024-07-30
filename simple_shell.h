@@ -15,4 +15,4 @@ extern char **environ;
 void execute_command(char **toks);
 char *check_path(char *command);
 
-#endif
+#endif /* SIMPLE_SHELL_H */
