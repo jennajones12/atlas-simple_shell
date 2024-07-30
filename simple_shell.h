@@ -8,9 +8,11 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <sys/stat.h>
 
 extern char **environ;
 
 void execute_command(char **toks);
+char *check_path(char *command);
 
 #endif

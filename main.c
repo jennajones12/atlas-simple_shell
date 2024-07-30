@@ -9,6 +9,7 @@ int main()
     char *toks[100]; /* array of tokens converted from input provided */
     int end; /* used to store result of strcmp for checking if the exit command is entered */
     size_t i; /* iterative var used for processing strtok */
+    char *command_path;
 
     end = 1;
 
@@ -33,8 +34,18 @@ int main()
         toks[i] = NULL; /* Null-terminate array of tokens */
         if (toks[0] != NULL)
         {
-            execute_command(toks);
-        }
+		command_path = check_path(toks[0]);
+		if (command_path != NULL)
+		{
+			toks[0] = command_path;
+			execute_command(toks);
+			free(command_path);
+		}
+		else
+		{
+			fprintf(stderr, "%s: command not found\n", toks[0]);
+		}
+	}
     }
     free(line);
     return (0);
