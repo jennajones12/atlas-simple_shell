@@ -39,16 +39,23 @@ int main(int argc, char **argv)
                 free(line);
                 exit(0);
             }
-            command_path = check_path(toks[0]);
-            if (command_path != NULL)
+            else if (strcmp(toks[0], "env") == 0)
             {
-                toks[0] = command_path;
-                execute_command(toks);
-                free(command_path);
+                print_env();
             }
             else
             {
-                fprintf(stderr, "%s: command not found\n", toks[0]);
+                command_path = check_path(toks[0]);
+                if (command_path != NULL)
+                {
+                    toks[0] = command_path;
+                    execute_command(toks);
+                    free(command_path);
+                }
+                else
+                {
+                    fprintf(stderr, "%s: command not found\n", toks[0]);
+                }
             }
         }
     }
