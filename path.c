@@ -1,44 +1,62 @@
 #include "simple_shell.h"
-#include <stdlib.h>
 #include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <limits.h>
 
-char *check_path(char *command) {
-    char *path = getenv("PATH");
-    char *full_path;
-    char *path_copy;
-    char *dir;
+/**
+ * check_path - Check if a command exists in directories listed in PATH.
+ * @command: The command to check.
+ *
+ * Return: Full path to the command if found, NULL otherwise.
+ */
+char *check_path(char *command)
+{
+    char *path_env, *path_copy, *dir;
     struct stat sb;
+    char *full_path;
 
-    if (path == NULL) {
-        return NULL;
+    /* Retrieve PATH environment variable */
+    path_env = my_getenv("PATH");
+    if (path_env == NULL)
+    {
+        return (NULL);  /* PATH not found */
     }
 
-    path_copy = strdup(path);
-    if (path_copy == NULL) {
-        return NULL;
+    /* Duplicate the PATH environment variable */
+    path_copy = strdup(path_env);
+    if (path_copy == NULL)
+    {
+        return (NULL);  /* Memory allocation failure */
     }
 
+    /* Allocate memory for the full path */
+    full_path = malloc(PATH_MAX);
+    if (full_path == NULL)
+    {
+        free(path_copy);
+        return (NULL);  /* Memory allocation failure */
+    }
+
+    /* Tokenize the PATH directories */
     dir = strtok(path_copy, ":");
-    while (dir != NULL) {
-        full_path = malloc(PATH_MAX);
-        if (full_path == NULL) {
-            free(path_copy);
-            return NULL;
-        }
-
+    while (dir != NULL)
+    {
+        /* Construct full path */
         snprintf(full_path, PATH_MAX, "%s/%s", dir, command);
-        if (stat(full_path, &sb) == 0) {
+        
+        /* Check if the file exists */
+        if (stat(full_path, &sb) == 0)
+        {
             free(path_copy);
-            return full_path;
+            return (full_path);  /* File found */
         }
-
-        free(full_path);
-        dir = strtok(NULL, ":");
+        dir = strtok(NULL, ":");  /* Get next directory */
     }
 
+    /* return NULL if not found */
+    free(full_path);
     free(path_copy);
-    return NULL;
+    return (NULL);  /* File not found */
 }
