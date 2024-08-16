@@ -37,7 +37,7 @@ char *check_path(char *cmd)
     dir = strtok(path, ":");
     while (dir != NULL)
     {
-        // Use sprintf to construct the full path
+        /* Use sprintf to construct the full path */
         sprintf(full_path, "%s/%s", dir, cmd);
         if (access(full_path, X_OK) == 0)
         {
