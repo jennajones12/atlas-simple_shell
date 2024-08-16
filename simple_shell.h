@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 
+/* Function Declarations */
 void execute_command(char **toks);
 char *check_path(char *command);
 char *my_getenv(const char *name);
