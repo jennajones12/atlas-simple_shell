@@ -1,28 +1,26 @@
 #include "simple_shell.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define MAX_INPUT_SIZE 1024
+#define MAX_ARG_SIZE 100
 
 extern char **environ;
 
-/**
- * main - Entry point of the shell program.
- *
- * Return: 0 on success.
- */
+void print_env(void);
+
 int main(void)
 {
     char input[MAX_INPUT_SIZE];
-    char *toks[MAX_INPUT_SIZE / 2 + 1]; /* Token array */
+    char *args[MAX_ARG_SIZE];
     char *token;
-    int i, j;
-
-    /* Test with a known command */
-    char *test_toks[] = {"/bin/ls", NULL};
-    execute_command(test_toks);
+    int status;
+    pid_t pid;
+    int i;
 
     while (1)
     {
@@ -33,7 +31,7 @@ int main(void)
             exit(EXIT_FAILURE);
         }
 
-        /* Remove trailing newline */
+        /* Remove newline character from input */
         input[strcspn(input, "\n")] = '\0';
 
         /* Tokenize input */
@@ -41,23 +39,38 @@ int main(void)
         token = strtok(input, " ");
         while (token != NULL)
         {
-            toks[i++] = token;
+            args[i++] = token;
             token = strtok(NULL, " ");
         }
-        toks[i] = NULL; /* Null-terminate the array */
+        args[i] = NULL;
 
-        /* Check if the input is not empty */
-        if (toks[0] != NULL)
+        /* Check for built-in commands */
+        if (strcmp(args[0], "env") == 0)
         {
-            /* Debug: Print the command and arguments */
-            printf("Command: %s\n", toks[0]);
-            for (j = 0; j < i; j++)
-            {
-                printf("Arg[%d]: %s\n", j, toks[j]);
-            }
+            print_env();
+            continue;
+        }
 
-            /* Execute the command */
-            execute_command(toks);
+        /* Fork and execute command */
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+        else if (pid == 0)
+        {
+            /* Child process */
+            if (execve(args[0], args, environ) == -1)
+            {
+                perror("execve");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            /* Parent process */
+            waitpid(pid, &status, 0);
         }
     }
 
