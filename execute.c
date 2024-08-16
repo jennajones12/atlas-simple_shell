@@ -5,9 +5,10 @@
 
 extern char **environ;
 
-// Custom function to get environment variable
+/* Custom function to get environment variable */
 char *get_env_var(const char *name) {
-    for (int i = 0; environ[i] != NULL; i++) {
+    int i;
+    for (i = 0; environ[i] != NULL; i++) {
         if (strncmp(environ[i], name, strlen(name)) == 0 && environ[i][strlen(name)] == '=') {
             return environ[i] + strlen(name) + 1;
         }
@@ -16,13 +17,13 @@ char *get_env_var(const char *name) {
 }
 
 void execute_command(char **toks) {
-    // Example usage of get_env_var
+    /* Example usage of get_env_var */
     char *path = get_env_var("PATH");
     if (path != NULL) {
         printf("PATH: %s\n", path);
     }
 
-    // Execute command
+    /* Execute command */
     if (execve(toks[0], toks, environ) == -1) {
         perror("execve");
         exit(EXIT_FAILURE);
