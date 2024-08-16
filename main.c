@@ -24,7 +24,7 @@ int main(void)
 
     while (1)
     {
-        printf("$ ");
+        printf("$");
         if (getline(&input, &input_size, stdin) == -1)
         {
             perror("getline");
