@@ -15,5 +15,6 @@ char *check_path(char *command);
 char *my_getenv(const char *name);
 void print_environment(char **env);
 char *get_env(const char *key, char **env);
+void print_env(void);
 
 #endif /* SIMPLE_SHELL_H */
