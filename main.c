@@ -21,7 +21,7 @@ int main(void)
     char *token;
     int status;
     pid_t pid;
-    int i, j;
+    int i;
     int only_spaces;
 
     while (1)
@@ -29,6 +29,8 @@ int main(void)
         printf("$ ");
         if (getline(&input, &input_size, stdin) == -1)
         {
+            if (feof(stdin))  /* End of file reached */
+                break;
             perror("getline");
             exit(EXIT_FAILURE);
         }
@@ -65,78 +67,6 @@ int main(void)
         if (strcmp(args[0], "env") == 0)
         {
             print_env();
-            continue;
-        }
-
-        /* Execute /bin/ls 3 times */
-        if (strcmp(args[0], "/bin/ls") == 0)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                pid = fork();
-                if (pid == -1)
-                {
-                    perror("fork");
-                    exit(EXIT_FAILURE);
-                }
-                else if (pid == 0)
-                {
-                    if (execve(args[0], args, environ) == -1)
-                    {
-                        perror("execve");
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else
-                {
-                    waitpid(pid, &status, 0);
-                }
-            }
-            continue;
-        }
-
-        /* Copy /bin/ls to hbtn_ls and execute ./hbtn_ls /var */
-        if (strcmp(args[0], "copy_ls") == 0)
-        {
-            pid = fork();
-            if (pid == -1)
-            {
-                perror("fork");
-                exit(EXIT_FAILURE);
-            }
-            else if (pid == 0)
-            {
-                char *copy_args[] = {"/bin/cp", "/bin/ls", "hbtn_ls", NULL};
-                if (execve(copy_args[0], copy_args, environ) == -1)
-                {
-                    perror("execve");
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else
-            {
-                waitpid(pid, &status, 0);
-            }
-
-            pid = fork();
-            if (pid == -1)
-            {
-                perror("fork");
-                exit(EXIT_FAILURE);
-            }
-            else if (pid == 0)
-            {
-                char *exec_args[] = {"./hbtn_ls", "/var", NULL};
-                if (execve(exec_args[0], exec_args, environ) == -1)
-                {
-                    perror("execve");
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else
-            {
-                waitpid(pid, &status, 0);
-            }
             continue;
         }
 
