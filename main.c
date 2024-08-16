@@ -1,102 +1,65 @@
 #include "simple_shell.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define MAX_INPUT_SIZE 1024
 
 extern char **environ;
 
-char *my_getenv(const char *name)
+/**
+ * main - Entry point of the shell program.
+ *
+ * Return: 0 on success.
+ */
+int main(void)
 {
-    int i;
-    size_t len = strlen(name);
+    char input[MAX_INPUT_SIZE];
+    char *toks[MAX_INPUT_SIZE / 2 + 1]; /* Token array */
+    char *token;
+    int i, j;
 
-    for (i = 0; environ[i] != NULL; i++)
-    {
-        if (strncmp(name, environ[i], len) == 0 && environ[i][len] == '=')
-        {
-            return &environ[i][len + 1];
-        }
-    }
-    return NULL;
-}
+    /* Test with a known command */
+    char *test_toks[] = {"/bin/ls", NULL};
+    execute_command(test_toks);
 
-size_t my_strcspn(const char *s, const char *reject)
-{
-    size_t i, j;
-
-    for (i = 0; s[i] != '\0'; i++)
-    {
-        for (j = 0; reject[j] != '\0'; j++)
-        {
-            if (s[i] == reject[j])
-            {
-                return i;
-            }
-        }
-    }
-    return i;
-}
-
-int main(int argc, char **argv)
-{
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t nread;
-    char *drifter; /* temp storage of tokens before assigning to array */
-    char *toks[100]; /* array of tokens converted from input provided */
-    size_t i; /* iterative variable used for processing strtok */
-    char *command_path;
-
-    (void)argc; /* to avoid unused variable warning */
-    (void)argv; /* to avoid unused variable warning */
-
-    while (1) /* loop keeps shell running until exit command entered */
+    while (1)
     {
         printf("$ ");
-        nread = getline(&line, &len, stdin); /* reads input from terminal */
-        if (nread == -1) /* handle end-of-file (Ctrl+D) */
+        if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL)
         {
-            printf("\n");
-            break;
+            perror("fgets");
+            exit(EXIT_FAILURE);
         }
 
-        line[my_strcspn(line, "\n")] = '\0'; /* removes newline end of input str */
-        drifter = strtok(line, " ");
+        /* Remove trailing newline */
+        input[strcspn(input, "\n")] = '\0';
+
+        /* Tokenize input */
         i = 0;
-        while (drifter != NULL) /* loop to handle assignment of tokens to toks array */
+        token = strtok(input, " ");
+        while (token != NULL)
         {
-            toks[i++] = drifter;
-            drifter = strtok(NULL, " ");
+            toks[i++] = token;
+            token = strtok(NULL, " ");
         }
-        toks[i] = NULL; /* Null-terminate array of tokens */
+        toks[i] = NULL; /* Null-terminate the array */
 
+        /* Check if the input is not empty */
         if (toks[0] != NULL)
         {
-            if (strcmp(toks[0], "exit") == 0)
+            /* Debug: Print the command and arguments */
+            printf("Command: %s\n", toks[0]);
+            for (j = 0; j < i; j++)
             {
-                free(line);
-                exit(0);
+                printf("Arg[%d]: %s\n", j, toks[j]);
             }
-            else if (strcmp(toks[0], "env") == 0)
-            {
-                print_env();
-            }
-            else
-            {
-                command_path = check_path(toks[0]);
-                if (command_path != NULL)
-                {
-                    toks[0] = command_path;
-                    execute_command(toks);
-                    free(command_path);
-                }
-                else
-                {
-                    fprintf(stderr, "%s: command not found\n", toks[0]);
-                }
-            }
+
+            /* Execute the command */
+            execute_command(toks);
         }
     }
-    free(line);
-    return (0);
+
+    return 0;
 }

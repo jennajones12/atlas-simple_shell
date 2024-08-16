@@ -1,37 +1,32 @@
 #include "simple_shell.h"
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 extern char **environ;
 
-/* Custom function to get environment variable */
-char *get_env_var(const char *name) {
-    int i;
-    size_t name_len = strlen(name);
+/**
+ * execute_command - Execute a command with arguments.
+ * @toks: Array of arguments.
+ */
+void execute_command(char **toks)
+{
+    char *path;
 
-    for (i = 0; environ[i] != NULL; i++) {
-        if (strncmp(environ[i], name, name_len) == 0 && environ[i][name_len] == '=') {
-            return environ[i] + name_len + 1;
-        }
-    }
-    return NULL;
-}
-
-void execute_command(char **toks) {
-    /* Example usage of get_env_var */
-    char *path = get_env_var("PATH");
-    if (path != NULL) {
-        const char *prefix = "PATH: ";
-        write(STDOUT_FILENO, prefix, strlen(prefix));
-        write(STDOUT_FILENO, path, strlen(path));
-        write(STDOUT_FILENO, "\n", 1);
+    /* Find the path of the command */
+    path = get_env("PATH", environ);
+    if (path == NULL)
+    {
+        fprintf(stderr, "%s: command not found\n", toks[0]);
+        return;
     }
 
-    /* Execute command */
-    if (execve(toks[0], toks, environ) == -1) {
-        perror("execve");
-        _exit(EXIT_FAILURE);
+    printf("Executing command: %s\n", toks[0]); // Debug statement
+
+    /* Replace current process image with new one */
+    if (execve(toks[0], toks, environ) == -1)
+    {
+        perror("execve failed");
     }
 }
