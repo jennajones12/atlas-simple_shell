@@ -1,3 +1,4 @@
+#include "simple_shell.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
