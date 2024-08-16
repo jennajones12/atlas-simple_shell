@@ -1,26 +1,13 @@
 #include "simple_shell.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-void execute_command(char **toks)
-{
-    pid_t pid;
-    int status;
+extern char **environ;
 
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
+void execute_command(char **toks) {
+    if (execve(toks[0], toks, environ) == -1) {
+        perror("execve");
         exit(EXIT_FAILURE);
-    }
-    else if (pid == 0)
-    {
-        if (execve(toks[0], toks, environ) == -1)
-        {
-            perror(toks[0]);
-            exit(EXIT_FAILURE);
-        }
-    }
-    else
-    {
-        wait(&status);
     }
 }
