@@ -1,8 +1,8 @@
 #include "simple_shell.h"
 #include <unistd.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 extern char **environ;
 
@@ -23,12 +23,15 @@ void execute_command(char **toks) {
     /* Example usage of get_env_var */
     char *path = get_env_var("PATH");
     if (path != NULL) {
-        printf("PATH: %s\n", path);
+        const char *prefix = "PATH: ";
+        write(STDOUT_FILENO, prefix, strlen(prefix));
+        write(STDOUT_FILENO, path, strlen(path));
+        write(STDOUT_FILENO, "\n", 1);
     }
 
     /* Execute command */
     if (execve(toks[0], toks, environ) == -1) {
         perror("execve");
-        exit(EXIT_FAILURE);
+        _exit(EXIT_FAILURE);
     }
 }
