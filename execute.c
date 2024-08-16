@@ -22,7 +22,7 @@ void execute_command(char **toks)
         return;
     }
 
-    printf("Executing command: %s\n", toks[0]); // Debug statement
+    printf("Executing command: %s\n", toks[0]); /* Debug statement */
 
     /* Replace current process image with new one */
     if (execve(toks[0], toks, environ) == -1)
