@@ -1,36 +1,73 @@
 #include "simple_shell.h"
+#include <stdio.h>
+#include <string.h>
+
+extern char **environ;
+
+char *my_getenv(const char *name)
+{
+    int i;
+    size_t len = strlen(name);
+
+    for (i = 0; environ[i] != NULL; i++)
+    {
+        if (strncmp(name, environ[i], len) == 0 && environ[i][len] == '=')
+        {
+            return &environ[i][len + 1];
+        }
+    }
+    return NULL;
+}
+
+size_t my_strcspn(const char *s, const char *reject)
+{
+    size_t i, j;
+
+    for (i = 0; s[i] != '\0'; i++)
+    {
+        for (j = 0; reject[j] != '\0'; j++)
+        {
+            if (s[i] == reject[j])
+            {
+                return i;
+            }
+        }
+    }
+    return i;
+}
 
 int main(int argc, char **argv)
 {
     char *line = NULL;
     size_t len = 0;
     ssize_t nread;
-    char *drifter; /* temporary storage of the individual tokens before assigning them to the array */
-    char *toks[100]; /* array of tokens converted from the input provided */
+    char *drifter; /* temp storage of tokens before assigning to array */
+    char *toks[100]; /* array of tokens converted from input provided */
     size_t i; /* iterative variable used for processing strtok */
     char *command_path;
 
     (void)argc; /* to avoid unused variable warning */
     (void)argv; /* to avoid unused variable warning */
 
-    while (1) /* loop keeps shell running until the exit command is entered */
+    while (1) /* loop keeps shell running until exit command entered */
     {
-        printf("$: ");
-        nread = getline(&line, &len, stdin); /* reads the input from the terminal */
-        if (nread == -1) /* handle end-of-file condition (Ctrl+D) */
+        printf("$ ");
+        nread = getline(&line, &len, stdin); /* reads input from terminal */
+        if (nread == -1) /* handle end-of-file (Ctrl+D) */
         {
             printf("\n");
             break;
         }
-        line[strcspn(line, "\n")] = 0; /* removes the newline at the end of the input string */
+
+        line[my_strcspn(line, "\n")] = '\0'; /* removes newline end of input str */
         drifter = strtok(line, " ");
         i = 0;
-        while (drifter != NULL) /* loop to handle the assignment of the tokens to the toks array */
+        while (drifter != NULL) /* loop to handle assignment of tokens to toks array */
         {
             toks[i++] = drifter;
             drifter = strtok(NULL, " ");
         }
-        toks[i] = NULL; /* Null-terminate the array of tokens */
+        toks[i] = NULL; /* Null-terminate array of tokens */
 
         if (toks[0] != NULL)
         {

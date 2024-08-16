@@ -10,10 +10,10 @@
 #include <limits.h>
 #include <sys/stat.h>
 
-extern char **environ;
 
 void execute_command(char **toks);
 char *check_path(char *command);
 void print_env(void);
+char *my_getenv(const char *name);
 
 #endif /* SIMPLE_SHELL_H */
